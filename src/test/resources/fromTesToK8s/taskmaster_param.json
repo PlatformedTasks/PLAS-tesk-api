@@ -1,0 +1,169 @@
+{
+  "outputs": [
+    {
+      "url": "/path/to/output_file.txt",
+      "path": "/tes/output.txt",
+      "type": "FILE"
+    },
+    {
+      "url": "/path/to/output",
+      "path": "/outputs/output",
+      "type": "DIRECTORY"
+    }
+  ],
+  "inputs": [
+    {
+      "name": "input1",
+      "description": "Example",
+      "url": "ftp://example.org/resource.txt",
+      "path": "/some/volume/input.txt",
+      "type": "FILE"
+    },
+    {
+      "url": "http://example.org/resources",
+      "path": "/tes/volumes/input",
+      "type": "DIRECTORY"
+    },
+    {
+      "content": "aaabbbcccddd",
+      "path": "/container/input/other.txt",
+      "type": "FILE"
+    }
+  ],
+  "volumes": [
+    "/tmp/tmp1",
+    "/tmp/tmp2"
+  ],
+  "executors": [
+    {
+      "apiVersion": "batch/v1",
+      "kind": "Job",
+      "metadata": {
+        "annotations": {
+          "tes-task-name": "taskFull"
+        },
+        "labels": {
+          "job-type": "executor",
+          "taskmaster-name": "task-35605447",
+          "executor-no": "0",
+          "creator-user-id": "test-user-id"
+        },
+        "name": "task-35605447-ex-00"
+      },
+      "spec": {
+        "template": {
+          "metadata": {
+            "name": "task-35605447-ex-00"
+          },
+          "spec": {
+            "containers": [
+              {
+                "command": [
+                  "/bin/sh",
+                  "-c",
+                  "echo 'hello world' > /tmp/stdout"
+                ],
+                "image": "ubuntu",
+                "name": "task-35605447-ex-00",
+                "resources": {
+                  "requests": {
+                    "cpu": "4",
+                    "memory": "15.000G"
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "mysecret",
+                    "mountPath": "/etc/secret",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Never",
+            "volumes": [
+              {
+                "name": "mysecret",
+                "secret": {
+                  "secretName": "mysecret"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "batch/v1",
+      "kind": "Job",
+      "metadata": {
+        "annotations": {
+          "tes-task-name": "taskFull"
+        },
+        "labels": {
+          "job-type": "executor",
+          "taskmaster-name": "task-35605447",
+          "executor-no": "1",
+          "creator-user-id": "test-user-id"
+        },
+        "name": "task-35605447-ex-01"
+      },
+      "spec": {
+        "template": {
+          "metadata": {
+            "name": "task-35605447-ex-01"
+          },
+          "spec": {
+            "containers": [
+              {
+                "command": [
+                  "/bin/sh",
+                  "-c",
+                  "sh -c 'md5sum $src' > /tes/output.txt 2> /tes/err.txt"
+                ],
+                "env": [
+                  {
+                    "name": "src",
+                    "value": "/container/input/other.txt"
+                  },
+                  {
+                    "name": "sth",
+                    "value": "sthElse"
+                  }
+                ],
+                "image": "alpine",
+                "name": "task-35605447-ex-01",
+                "resources": {
+                  "requests": {
+                    "cpu": "4",
+                    "memory": "15.000G"
+                  }
+                },
+                "workingDir": "/starthere",
+                "volumeMounts": [
+                  {
+                    "name": "mysecret",
+                    "mountPath": "/etc/secret",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "restartPolicy": "Never",
+            "volumes": [
+              {
+                "name": "mysecret",
+                "secret": {
+                  "secretName": "mysecret"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "resources": {
+    "disk_gb": 100
+  }
+}
