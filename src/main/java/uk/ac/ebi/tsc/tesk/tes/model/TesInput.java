@@ -37,9 +37,6 @@ public class TesInput   {
   @JsonProperty("content")
   private String content;
 
-  @JsonProperty("tmconfig")
-  private Boolean tmconfig = Boolean.FALSE;
-
   public TesInput name(String name) {
     this.name = name;
     return this;
@@ -163,15 +160,6 @@ public class TesInput   {
     this.content = content;
   }
 
-
-  public Boolean getTmconfig() {
-    return tmconfig;
-  }
-
-  public void setTmconfig(Boolean tmconfig) {
-    this.tmconfig = tmconfig;
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -204,7 +192,6 @@ public class TesInput   {
     sb.append("    url: ").append(toIndentedString(url)).append("\n");
     sb.append("    path: ").append(toIndentedString(path)).append("\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    tmconfig: ").append(toIndentedString(tmconfig)).append("\n");
     sb.append("    content: ").append(toIndentedString(content)).append("\n");
     sb.append("}");
     return sb.toString();

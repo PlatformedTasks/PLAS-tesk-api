@@ -26,14 +26,15 @@ public class TesExecutor   {
   @JsonProperty("image")
   private String image;
 
-  @JsonProperty("chartrepo")
-  private String chartrepo;
 
-  @JsonProperty("chartversion")
-  private String chartversion;
+  @JsonProperty("sidecar")
+  private TesTaskSidecar sidecar = new TesTaskSidecar();
 
-  @JsonProperty("chartname")
-  private String chartname;
+//  @JsonProperty("chartversion")
+//  private String chartversion;
+//
+//  @JsonProperty("chartname")
+//  private String chartname;
 
   @JsonProperty("command")
   @Valid
@@ -68,17 +69,21 @@ public class TesExecutor   {
     return image;
   }
 
-  public String getChartrepo(){
-    return chartrepo;
+  public TesTaskSidecar getSidecar() {
+    return sidecar;
   }
 
-  public String getChartname() {
-    return chartname;
-  }
-
-  public String getChartversion() {
-    return chartversion;
-  }
+//  public String getChartrepo(){
+//    return chartrepo;
+//  }
+//
+//  public String getChartname() {
+//    return chartname;
+//  }
+//
+//  public String getChartversion() {
+//    return chartversion;
+//  }
 
   /**
    * Name of the container image. The string will be passed as the image argument to the containerization run command. Examples:    - `ubuntu`    - `quay.io/aptible/ubuntu`    - `gcr.io/my-org/my-image`    - `myregistryhost:5000/fedora/httpd:version1.0`
@@ -91,16 +96,13 @@ public class TesExecutor   {
     if (image != null && image != ""){
       return image;
     } else
-      return chartrepo;
+      return "ubuntu:20.04";
   }
 
   public void setImage(String image) {
     this.image = image;
   }
 
-  public void setChartrepo(String chartrepo) {
-    this.chartrepo = chartrepo;
-  }
 
   public TesExecutor command(List<String> command) {
     this.command = command;
@@ -250,6 +252,7 @@ public class TesExecutor   {
     }
     TesExecutor tesExecutor = (TesExecutor) o;
     return Objects.equals(this.image, tesExecutor.image) &&
+        Objects.equals(this.sidecar, tesExecutor.sidecar) &&
         Objects.equals(this.command, tesExecutor.command) &&
         Objects.equals(this.workdir, tesExecutor.workdir) &&
         Objects.equals(this.stdin, tesExecutor.stdin) &&
@@ -260,7 +263,7 @@ public class TesExecutor   {
 
   @Override
   public int hashCode() {
-    return Objects.hash(image, command, workdir, stdin, stdout, stderr, env);
+    return Objects.hash(image, sidecar, command, workdir, stdin, stdout, stderr, env);
   }
 
   @Override
@@ -270,7 +273,7 @@ public class TesExecutor   {
     
 //    sb.append("    kind: ").append(toIndentedString(type)).append("\n");
     sb.append("    image: ").append(toIndentedString(image)).append("\n");
-    sb.append("    chartrepo: ").append(toIndentedString(chartrepo)).append("\n");
+    sb.append("    sidecar: ").append(toIndentedString(sidecar)).append("\n");
     sb.append("    command: ").append(toIndentedString(command)).append("\n");
     sb.append("    workdir: ").append(toIndentedString(workdir)).append("\n");
     sb.append("    stdin: ").append(toIndentedString(stdin)).append("\n");

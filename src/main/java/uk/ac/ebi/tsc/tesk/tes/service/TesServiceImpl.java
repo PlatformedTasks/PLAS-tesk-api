@@ -51,6 +51,9 @@ public class TesServiceImpl implements TesService {
             try {
                 V1Job taskMasterJob = this.converter.fromTesTaskToK8sJob(task, user);
                 V1Job createdJob = this.kubernetesClientWrapper.createJob(taskMasterJob);
+                System.out.println("LUCAAA2");
+                System.out.println(createdJob);
+                System.out.println("LUCAAA2");
                 return this.converter.fromK8sJobToTesCreateTaskResponse(createdJob);
             } catch (KubernetesException e) {
                 //in case of job name collision retry converting task to job (with new generated name) and creating the job

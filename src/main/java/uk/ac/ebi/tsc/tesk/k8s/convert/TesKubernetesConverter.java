@@ -81,15 +81,16 @@ public class TesKubernetesConverter {
         try {
             //in order to retrieve task details, when querying for task details, whole tesTask object is placed as taskMaster's annotation
             //Jackson for TES objects - because, we rely on auto-generated annotations for Json mapping
-            task.getInputs().stream().filter(TesInput::getTmconfig).forEach(
-                    input -> {
-
-                        taskMasterJob.getSpec().getTemplate().getSpec().getContainers().get(0).getVolumeMounts().stream().filter(
-                                vol -> "transfer-volume".equals(vol.getName())).forEach(vol -> {
-                            input.setPath(vol.getMountPath() + "/" + taskMasterJob.getMetadata().getName() + input.getPath());
-                        });
-                    }
-            );
+//            LUCAAA Removed Tmconfig param
+//            task.getInputs().stream().filter(TesInput::getTmconfig).forEach(
+//                    input -> {
+//
+//                        taskMasterJob.getSpec().getTemplate().getSpec().getContainers().get(0).getVolumeMounts().stream().filter(
+//                                vol -> "transfer-volume".equals(vol.getName())).forEach(vol -> {
+//                            input.setPath(vol.getMountPath() + "/" + taskMasterJob.getMetadata().getName() + input.getPath());
+//                        });
+//                    }
+//            );
             taskMasterJob.getMetadata().putAnnotationsItem(ANN_JSON_INPUT_KEY, this.objectMapper.writeValueAsString(task));
         } catch (JsonProcessingException ex) {
             logger.info(String.format("Serializing task %s to JSON failed", taskMasterJob.getMetadata().getName()), ex);
@@ -98,6 +99,12 @@ public class TesKubernetesConverter {
         List<V1Job> executorsAsJobs = IntStream.range(0, task.getExecutors().size()).
                 mapToObj(i -> this.fromTesExecutorToK8sJob(taskMasterJob.getMetadata().getName(), task.getName(), task.getExecutors().get(i), i, task.getResources(), user)).
                 collect(Collectors.toList());
+        System.out.println("LUCAAA11");
+        System.out.println(task.getExecutors());
+        System.out.println("FINE LUCAAA11");
+        System.out.println("LUCAAA1");
+        System.out.println(executorsAsJobs);
+        System.out.println("FINE LUCAAA1");
         Map<String, Object> taskMasterInput = new HashMap<>();
        try {
             //converting original inputs, outputs, volumes and disk size back again to JSON (will be part of taskMaster's input parameter)
@@ -115,21 +122,36 @@ public class TesKubernetesConverter {
             //TODO throw
         }
         Map<String, Object> executorsHelmAsJobs = new HashMap<>();
-
-        if (task.getExecutors().get(0).getChartrepo() != null) {
-            executorsHelmAsJobs.put("kind", "helm");
-            executorsHelmAsJobs.put("chart_repo", task.getExecutors().get(0).getChartrepo());
-            executorsHelmAsJobs.put("chart_name", task.getExecutors().get(0).getChartname());
-            executorsHelmAsJobs.put("chart_version", task.getExecutors().get(0).getChartversion());
+//        MOD LUCAAA
+        if (task.getExecutors().get(0).getSidecar().getType() != null) {
+            executorsHelmAsJobs.put("sidecar", task.getExecutors().get(0).getSidecar());
             executorsHelmAsJobs.put("job", executorsAsJobs.get(0));
             taskMasterInput.put(TASKMASTER_INPUT_EXEC_KEY, Collections.singletonList(executorsHelmAsJobs));
+
+//        FINE
+//        OLD
+//        if (task.getExecutors().get(0).getChartrepo() != null) {
+//            executorsHelmAsJobs.put("kind", "helm");
+//            executorsHelmAsJobs.put("chart_repo", task.getExecutors().get(0).getChartrepo());
+//            executorsHelmAsJobs.put("chart_name", task.getExecutors().get(0).getChartname());
+//            executorsHelmAsJobs.put("chart_version", task.getExecutors().get(0).getChartversion());
+//            executorsHelmAsJobs.put("job", executorsAsJobs.get(0));
+//            taskMasterInput.put(TASKMASTER_INPUT_EXEC_KEY, Collections.singletonList(executorsHelmAsJobs));
         } else {
             taskMasterInput.put(TASKMASTER_INPUT_EXEC_KEY, executorsAsJobs);
         }
 
+//        taskMasterInput.put(TASKMASTER_INPUT_EXEC_KEY, executorsAsJobs);
+
         String taskMasterInputAsJSON = this.gson.toJson(taskMasterInput);
         //placing taskmaster's parameter (JSONed map of: inputs, outputs, volumes, executors (as jobs) into ENV variable in taskmaster spec
         taskMasterJob.getSpec().getTemplate().getSpec().getContainers().get(0).getEnv().stream().filter(x -> x.getName().equals(TASKMASTER_INPUT)).forEach(x -> x.setValue(taskMasterInputAsJSON));
+
+        //        LUCAAA print taskMasterJob per test
+        System.out.println("LUCAAA");
+        System.out.println(taskMasterJob);
+        System.out.println("LUCAAA FINE");
+        // >LUCAAA
         return taskMasterJob;
     }
 
